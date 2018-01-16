@@ -1,0 +1,97 @@
+---
+- name: Start All EMS Instances on Both EMS Servers.
+  hosts: Tibco-Production-EMS
+  user: tibuser
+  sudo: no
+
+  tasks:
+    - name: Start EMS Admin instances
+      shell: cd /app/tibco/ems/8.3/bin && ./tibemsd64 -config /app/TIBCO_HOME/tibco/cfgmgmt/admin/data/tibemsd.conf &
+      register: result
+    - debug:
+        var: result
+
+    - name: Start EMS ESB instances
+      shell: cd /app/tibco/ems/8.3/bin && ./tibemsd64 -config /app/TIBCO_HOME/tibco/cfgmgmt/esb/data/tibemsd.conf &
+      register: result
+    - debug:
+        var: result
+
+    - name: Start EMS CLE instances
+      shell: cd /app/tibco/ems/8.3/bin && ./tibemsd64 -config /app/TIBCO_HOME/tibco/cfgmgmt/cle/data/tibemsd.conf &
+      register: result
+    - debug:
+        var: result
+
+###################################################################################################
+#######  Check EMS Connectivity Testing ##########################################
+###################################################################################################
+
+    - name: Start EMS Admin instances
+      shell: netstat -tln|grep 6444|grep -i listen
+      register: result
+    - command: echo "EMS Admin Instance Not Running Properly, Please re-check at both servers"
+      when: result|failed
+    - debug:
+        var: result
+
+    - name: Start EMS ESB instances
+      shell: netstat -tln|grep 6222|grep -i listen 
+      register: result
+    - command: echo "EMS ESB Instance Not Running Properly, Please re-check at both servers"
+      when: result|failed
+    - debug:
+        var: result
+
+    - name: Start EMS CLE instances
+      shell: netstat -tln|grep 6333|grep -i listen 
+      register: result
+    - command: echo "EMS CLE Instance Not Running Properly, Please re-check at both servers"
+      when: result|failed
+    - debug:
+        var: result
+
+
+###################################################################################################
+- name: Start TIBCO Administrator on Both ADMIN1 and ADMIN2
+  hosts: Tibco-Production-Admin
+  user: tibuser
+  sudo: no
+
+  tasks:
+    - name: Start All Admin PIDs on Both Admin Servers
+      shell: cd /app/tibco/administrator/domain/PRODTIBCO/bin && nohup ./tibcoadmin_PRODTIBCO &
+      ignore_errors: yes
+      register: result
+    - debug:
+        var: result
+
+####################################################################################################
+- name: Start Hawk Agent On All Containers
+  hosts: Tibco-Production-All
+  user: tibuser
+  sudo: no
+
+  tasks:
+    - name: Start Hawk PIDs Across All Machines
+      shell: cd /app/tibco/tra/domain/PRODTIBCO && nohup ./hawkagent_PRODTIBCO &
+      ignore_errors: yes
+      register: result
+    - debug:
+        var: result
+
+####################################################################################################
+- name: Batch Start
+  hosts: Tibco-Production-Admin-1
+  user: tibuser
+  sudo: no
+
+  tasks:
+
+    - name: Batch Start
+      shell: cd /app/tibco/tra/5.10/bin && ./AppManage  -batchStart -cred /app/password.txt -domain PRODTIBCO -dir /app/backup
+      ignore_errors: yes
+      register: result
+    - debug:
+        var: result
+

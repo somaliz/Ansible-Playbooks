@@ -1,0 +1,99 @@
+---
+- name: Stop Hawk Agent On All Containers
+  hosts: Tibco-Production-All
+  user: tibuser
+  sudo: no
+
+  tasks:
+    - name: Stop Hawk PIDs Across All Machines
+      shell: kill -9 `ps -eaf|grep -i hawk|grep -v grep|awk '{print $2}'`
+      ignore_errors: yes
+      register: result
+    - debug:
+        var: result
+
+#########################################################################################################
+- name: Stop Bwengine processes
+  hosts: Tibco-Production-bw
+  user: tibuser
+  sudo: no
+
+  tasks:
+    - name: Kill All  bwengine PIDs
+      shell: kill -9 `ps -eaf|grep -i bwengine|grep -v grep|awk '{print $2}'`
+      ignore_errors: yes      
+      register: result
+    - debug:
+        var: result
+
+##########################################################################################################
+- name: Stop adr3(SAP ADAPTER) processes
+  hosts: Tibco-Production-adp
+  user: tibuser
+  sudo: no
+
+  tasks:
+    - name: Kill All SAP Adapter PIDs
+      shell: kill -9 `ps -eaf|grep -i adr3|grep -v grep|awk '{print $2}'`
+      ignore_errors: yes
+      register: result
+    - debug:
+        var: result
+
+############################################################################################################
+- name: Stop adadb processes
+  hosts: Tibco-Production-adp
+  user: tibuser
+  sudo: no
+
+  tasks:
+    - name: Kill All Database Adapter  PIDs
+      shell: kill -9 `ps -eaf|grep -i adadb|grep -v grep|awk '{print $2}'` 
+      ignore_errors: yes
+      register: result
+    - debug:
+        var: result
+
+############################################################################################################
+- name: Stop adldap processes
+  hosts: Tibco-Production-adp
+  user: tibuser
+  sudo: no
+
+  tasks:
+    - name: Kill All LDAP Adapter PIDs
+      shell: kill -9 `ps -eaf|grep -i adldap|grep -v grep|awk '{print $2}'`
+      ignore_errors: yes
+      register: result
+    - debug:
+        var: result
+
+#############################################################################################################
+- name: Stop TIBCO Administrator on Both ADMIN1 and ADMIN2
+  hosts: Tibco-Production-Admin
+  user: tibuser
+  sudo: no
+
+  tasks:
+    - name: Stop All Admin PIDs on Both Admin Servers
+      shell: kill -9 `ps -eaf|grep -i tibcoadmin_PRODTIBCO|grep -v grep|awk '{print $2}'`
+      ignore_errors: yes
+      register: result
+    - debug:
+        var: result
+
+#############################################################################################################
+- name: Stop All EMS Instances on Both EMS Servers.
+  hosts: Tibco-Production-EMS
+  user: tibuser
+  sudo: no
+
+  tasks:
+    - name: Stop ALL EMS instances 
+      shell: kill -9 `ps -eaf|grep -i tibemsd|grep -v grep|awk '{print $2}'`
+      ignore_errors: yes
+      register: result
+    - debug:
+        var: result
+
+#############################################################################################################
