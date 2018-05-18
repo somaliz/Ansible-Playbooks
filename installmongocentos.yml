@@ -1,0 +1,30 @@
+---
+- name: Install and Configure MongoDB
+  hosts: local
+  user: ec2-user
+  sudo: yes
+
+  tasks:
+    - name: Install EPEL Repositary
+      shell: sudo wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && rpm -Uvh epel-release-latest-7.noarch.rpm && yum -y upgrade && yum -y update && rm -rf epel-release-latest-7.noarch.rpm
+      register: result
+    - debug:
+        var: result
+
+    - name: Install MongoDB
+      shell: sudo yum -y install mongodb*
+      register: result
+    - debug:
+        var: result
+
+    - name:  Start MongoDB
+      shell: sudo systemctl start mongod && sudo systemctl enable mongod 
+      register: result
+    - debug:
+        var: result
+    
+    - name: Increase Number of process MongoDB
+      shell: sudo echo "mongod  soft    nproc   32000">>/etc/security/limits.d/20-nproc.conf
+      register: result
+    - debug:
+        var: result
